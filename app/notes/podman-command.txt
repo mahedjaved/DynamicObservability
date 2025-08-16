@@ -1,0 +1,4 @@
+cd app
+podman machine init
+podman machine start
+podman build -t observability-microservice .

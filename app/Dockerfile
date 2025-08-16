@@ -1,10 +1,21 @@
-FROM openjdk:17-jdk-slim
+FROM maven:3.9-eclipse-temurin-17 AS build
 
-# Set working directory
 WORKDIR /app
 
-# Copy the built jar file
-COPY build/libs/observability-microservice-0.0.1-SNAPSHOT.jar app.jar
+# Copy pom.xml and download dependencies (for better caching)
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy source code and build the application
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
+# Copy the built jar from the build stage
+COPY --from=build /app/target/app-*.jar app.jar
 
 # Create logs directory
 RUN mkdir -p logs
