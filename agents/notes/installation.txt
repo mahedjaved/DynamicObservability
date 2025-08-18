@@ -1,0 +1,21 @@
+On Windows: Use irm to download the script and iex to execute it:
+
+-- 1) Install UV --
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+
+-- 2) Langchain and json-repair
+pip install json-repair langchain-community
+
+-- 3) ChromaDB
+pip install chromadb
+
+-- 4) Porta locker and LiteLLM
+pip install portalocker litellm
+
+-- 5) Appdirs 
+pip install appdirs
+
+-- 6) Crewai and Ollama
+pip install crewai 
+pip install ollama
