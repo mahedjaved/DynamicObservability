@@ -1,0 +1,51 @@
+cd app
+podman machine init
+podman machine start
+podman build -t observability-microservice .
+podman run -p 8080:8080 observability-microservice
+
+# gets a list of all pods running
+podman ps -a
+
+
+# after podman ps, you can use podman logs <id> to view the container logs
+podman logs <pid>
+
+# The below apparently works fine
+Test-NetConnection -ComputerName localhost -Port 8080
+
+
+This was the problem all along
+
+I notice that the pom.xml file is missing the Spring Boot Actuator dependency, which is needed for the health endpoints. Let's add it:
+
+
+# Some professional way of doing it
+$containerId = podman ps -q; podman logs $containerId
+
+
+
+you're still having issues, it might be related to Windows-specific networking with Podman. Let's check if there's a specific issue with the Podman machine on Windows:
+t seems the podman machine list command didn't return any output. This could indicate that you're using Podman directly on Windows (not through a VM) or there might be an issue with the Podman installation.
+t seems we're still having issues accessing the endpoints. Let's try one more thing - let's check if there's a firewall or network policy blocking the connection. We'll use the netstat command to verify that the port is actually being listened on:
+
+netstat -an | findstr :8080
+
+From the container inspection, I can see that the container is properly configured with port mapping:
+
+plaintext
+
+Copy
+
+Insert
+This confirms that port 8080 is correctly mapped from the container to the host.
+
+Given that we've verified:
+
+The container is running
+The application has started successfully
+The port is correctly mapped
+The port is accessible according to Test-NetConnection
+But we still can't access the endpoints, there might be an issue specific to how Windows handles networking with Podman.
+
+Let's try one more approach - let's exec into the container and check if the application is actually listening on port 8080 from inside the container:
