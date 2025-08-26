@@ -2,14 +2,9 @@
 Implementation of log monitoring and integration with Openshift via Podman containers using the Docker API (too long winded :D TODO find podman apis if available)
 """
 
-import re
 import ollama
 import docker
-import time
 import json
-import os
-import threading
-import requests
 
 architecture_knowledge = ""
 
