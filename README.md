@@ -96,16 +96,42 @@ npm run dev
 
 ---
 
-## 🎮 Usage Guide
-
-1.  **Orchestration**: On the dashboard, click **"Deploy"** on the "Web Stack" card. Watch the "System Logs" panel to see the backend confirm deployment.
-2.  **Monitoring**: The "Active Containers" panel updates every 5 seconds.
-3.  **AI Analysis**:
-    *   Find a running container (e.g., `dynobs-alpine`) in the list.
-    *   Click the **"Analyze AI"** button.
-    *   The backend fetches the last 5 lines of logs, sends them to Ollama, and streams the AI's explanation to the "System Logs" panel.
+## ⚙️ How Orchestration Works
+When you click **"Deploy"** in the dashboard:
+1.  **Frontend** sends a request to the Java Backend (`POST /api/orchestrate/web-stack`).
+2.  **Backend** (`OrchestrationService`) receives the command.
+3.  **Backend** acts as a controller, using the `docker-java` library to talk directly to your local **Podman Socket**.
+4.  It instructs Podman to pull images (`nginx`, `redis`) and start containers from scratch.
+    *   *Note: This mimics a real-world orchestrator like Kubernetes, but runs locally on your machine.*
 
 ---
+
+## 🎮 Usage Guide
+
+### 1. Launching the Demo Environment
+To fully test the **AI Analysis** features, you need a container that generates logs. We provide a script for this:
+
+**Option A: The Full Demo Script (Recommended)**
+This spins up `nginx`, `redis`, and a special `dynobs-alpine` container that prints logs for the AI to analyze.
+```powershell
+# Run from project root
+.\start_demo_containers.ps1
+```
+
+**Option B: Dashboard Orchestration**
+You can also start containers directly from the UI:
+1.  Go to the Dashboard.
+2.  Click **"Deploy"** on the "Web Stack" card.
+3.  Watch the "System Logs" panel as the Backend instructs Podman to start Nginx and Redis.
+
+### 2. Live Monitoring
+The "Active Containers" panel polls the backend every 5 seconds to show whatever is currently running on your Podman machine.
+
+### 3. AI Log Analysis
+1.  Ensure `dynobs-alpine` is running (use **Option A** above).
+2.  Find it in the "Active Containers" list.
+3.  Click the **"Analyze AI"** button.
+4.  The Backend fetches the last 5 lines of logs, sends them to **Ollama**, and streams the explanation to the "System Logs" panel.
 
 ## 🛠️ Tech Stack
 
