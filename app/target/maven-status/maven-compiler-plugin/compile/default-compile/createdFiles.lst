@@ -1,2 +1,7 @@
 org\personal\dynobs\controller\LogController.class
+org\personal\dynobs\service\PodmanService.class
+org\personal\dynobs\config\LoggingConfig.class
+org\personal\dynobs\service\Business.class
+org\personal\dynobs\HomeController.class
 org\personal\dynobs\ObservabilityMicroserviceApplication.class
+org\personal\dynobs\service\OllamaService.class
