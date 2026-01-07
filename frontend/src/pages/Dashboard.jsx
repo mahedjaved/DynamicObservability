@@ -51,6 +51,31 @@ export default function Dashboard() {
         return () => clearInterval(interval);
     }, []);
 
+    // AI Analysis Poller
+    useEffect(() => {
+        const analyzeInterval = setInterval(async () => {
+            // Check if our demo alpine container is there
+            const hasAlpine = containers.some(c => c.includes("dynobs-alpine"));
+            if (hasAlpine) {
+                try {
+                    // Call the new backend endpoint
+                    const res = await fetch('/api/containers/dynobs-alpine/analyze');
+                    if (res.ok) {
+                        const analysis = await res.text();
+                        // Only add if it's a meaningful analysis (not just "No logs")
+                        if (!analysis.includes("No logs") && !analysis.includes("Unknown")) {
+                            setLogs(prev => [`[AI OPTIC] ${analysis}`, ...prev].slice(0, 20)); // Keep last 20
+                        }
+                    }
+                } catch (e) {
+                    console.error("Analysis failed", e);
+                }
+            }
+        }, 10000); // Analyze every 10 seconds (don't spam Ollama)
+
+        return () => clearInterval(analyzeInterval);
+    }, [containers]);
+
     const triggerOrchestration = (orch) => {
         console.log("Triggering:", orch);
         // In real app, we'd map the name to an endpoint or ID
@@ -121,9 +146,29 @@ export default function Dashboard() {
                         ) : (
                             <ul className="space-y-2">
                                 {containers?.map((c, i) => (
-                                    <li key={i} className="flex items-center gap-2 text-sm">
-                                        <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                                        {c}
+                                    <li key={i} className="flex items-center justify-between text-sm p-2 hover:bg-white/5 rounded">
+                                        <div className="flex items-center gap-2">
+                                            <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                                            {c}
+                                        </div>
+                                        <Button 
+                                            size="sm" 
+                                            variant="ghost" 
+                                            className="h-6 text-[10px] border border-green-500/30 hover:bg-green-500/10 hover:text-green-400"
+                                            onClick={async () => {
+                                                try {
+                                                    const name = c.replace('/', ''); // Remove leading slash if present
+                                                    setLogs(prev => [`[SYSTEM] Analyzing ${name}...`, ...prev]);
+                                                    const res = await fetch(`/api/containers/${name}/analyze`);
+                                                    const text = await res.text();
+                                                    setLogs(prev => [`[AI OPTIC] ${text}`, ...prev]);
+                                                } catch(err) {
+                                                    setLogs(prev => [`[ERROR] Analysis failed: ${err}`, ...prev]);
+                                                }
+                                            }}
+                                        >
+                                            Analyze AI
+                                        </Button>
                                     </li>
                                 ))}
                             </ul>
@@ -141,7 +186,7 @@ export default function Dashboard() {
                     </CardHeader>
                     <CardContent className="h-64 overflow-y-auto space-y-1 p-4 pt-0">
                         {logs.map((log, i) => (
-                            <div key={i} className="break-all border-l-2 border-transparent hover:border-green-500 pl-2 transition-colors">
+                            <div key={i} className="break-all border-l-2 border-transparent hover:border-green-500 pl-2 transition-colors font-mono text-xs">
                                 <span className="opacity-50 mr-2">[{new Date().toLocaleTimeString()}]</span>
                                 {log}
                             </div>
@@ -152,3 +197,25 @@ export default function Dashboard() {
         </div>
     );
 }
+
+// Add this Effect inside the component to auto-analyze alpine logs
+// Place this inside the Dashboard component, before the return
+/*
+    useEffect(() => {
+        const analyzeInterval = setInterval(async () => {
+            // Only try to analyze if we have the alpine container running
+            const hasAlpine = containers.some(c => c.includes("dynobs-alpine"));
+            if (hasAlpine) {
+                try {
+                    const res = await fetch('/api/containers/dynobs-alpine/analyze');
+                    const analysis = await res.text();
+                    setLogs(prev => [`[AI ANALYSIS] ${analysis}`, ...prev].slice(0, 50)); // Keep last 50
+                } catch (e) {
+                    console.error("Analysis failed", e);
+                }
+            }
+        }, 8000); // Analyze every 8 seconds
+
+        return () => clearInterval(analyzeInterval);
+    }, [containers]);
+*/

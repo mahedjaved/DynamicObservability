@@ -53,12 +53,33 @@ public class PodmanService {
     public void startContainer(String image) {
         if (dockerClient == null)
             return;
-        // Simplified start logic for orchestration demo
         try {
             dockerClient.createContainerCmd(image).exec();
-            // Logic to start... simplifying for initial scaffolding
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public String getContainerLogs(String containerName) {
+        if (dockerClient == null)
+            return "Docker Client Unavailable";
+        try {
+            // Fetch last 5 lines of logs
+            // Logic requires a callback to capture the stream
+            final StringBuilder logBuilder = new StringBuilder();
+            dockerClient.logContainerCmd(containerName)
+                    .withStdOut(true)
+                    .withStdErr(true)
+                    .withTail(5) // Last 5 lines
+                    .exec(new com.github.dockerjava.api.async.ResultCallback.Adapter<com.github.dockerjava.api.model.Frame>() {
+                        @Override
+                        public void onNext(com.github.dockerjava.api.model.Frame object) {
+                            logBuilder.append(new String(object.getPayload()));
+                        }
+                    }).awaitCompletion();
+            return logBuilder.toString();
+        } catch (Exception e) {
+            return "Error fetching logs: " + e.getMessage();
         }
     }
 }
