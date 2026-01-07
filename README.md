@@ -147,4 +147,18 @@ The "Active Containers" panel polls the backend every 5 seconds to show whatever
 *   **Icons**: Lucide React
 
 ---
+
+## 🔮 Future Roadmap
+
+### 📂 Context Engineering (RAG)
+We plan to introduce a **Drag-and-Drop** interface for PDF ingestion.
+*   **Goal**: Allow engineers to upload architecture diagrams or runbooks (PDFs).
+*   **Mechanism**: The backend will vectorize these documents to provide "Context Engineering" for the LLM.
+*   **Result**: The AI won't just analyze generic logs; it will cross-reference errors against *your* specific service documentation to suggest highly relevant fixes.
+
+### ☸️ Kubernetes Migration
+While the current version uses local Podman for simplicity, the long-term vision is to support **Kubernetes**.
+*   This will allow DynObs to orchestrate clusters across multiple nodes, moving from a "Local Dev Tool" to a "Production Ops Platform".
+
+---
 *Created by Mahed Javed - 2026 - for any queries & feedback please get in touch: mahed95@gmail.com*
