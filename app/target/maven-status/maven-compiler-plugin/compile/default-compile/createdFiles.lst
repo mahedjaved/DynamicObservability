@@ -1,7 +1,10 @@
+org\personal\dynobs\controller\OrchestrationController.class
 org\personal\dynobs\controller\LogController.class
 org\personal\dynobs\service\PodmanService.class
 org\personal\dynobs\config\LoggingConfig.class
 org\personal\dynobs\service\Business.class
+org\personal\dynobs\controller\ContainerController.class
 org\personal\dynobs\HomeController.class
 org\personal\dynobs\ObservabilityMicroserviceApplication.class
+org\personal\dynobs\service\OrchestrationService.class
 org\personal\dynobs\service\OllamaService.class

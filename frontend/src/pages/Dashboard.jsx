@@ -11,18 +11,42 @@ export default function Dashboard() {
 
     useEffect(() => {
         // Fetch available orchestrations
-        fetch('/api/orchestrate')
-            .then(res => res.json())
-            .then(data => setOrchestrations(data))
-            .catch(err => console.error("Failed to fetch orchestrations", err));
+        const fetchOrchestrations = async () => {
+            try {
+                const res = await fetch('/api/orchestrate');
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    setOrchestrations(data);
+                } else {
+                    console.error("Orchestrations data is not an array:", data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch orchestrations", err);
+            }
+        };
+        fetchOrchestrations();
 
         // Fetch containers (mock/real)
-        const interval = setInterval(() => {
-            fetch('/api/containers')
-                .then(res => res.json())
-                .then(data => setContainers(data))
-                .catch(err => console.error(err));
-        }, 5000);
+        const fetchContainers = async () => {
+            try {
+                const res = await fetch('/api/containers');
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    setContainers(data);
+                } else {
+                    console.error("Containers data is not an array:", data);
+                    setContainers([]); // Fallback to empty
+                }
+            } catch (err) {
+                console.error("Failed to fetch containers", err);
+                // Don't clear containers on temporary failure to avoid flash, or do if strictly needed
+            }
+        };
+
+        const interval = setInterval(fetchContainers, 5000);
+        fetchContainers(); // Initial call
 
         return () => clearInterval(interval);
     }, []);
@@ -65,7 +89,7 @@ export default function Dashboard() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {orchestrations.length === 0 && <p className="text-sm text-muted-foreground">Loading actions...</p>}
-                        {orchestrations.map((orch, idx) => (
+                        {orchestrations?.map((orch, idx) => (
                             <motion.div
                                 key={idx}
                                 whileHover={{ scale: 1.02 }}
@@ -96,7 +120,7 @@ export default function Dashboard() {
                             </div>
                         ) : (
                             <ul className="space-y-2">
-                                {containers.map((c, i) => (
+                                {containers?.map((c, i) => (
                                     <li key={i} className="flex items-center gap-2 text-sm">
                                         <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                                         {c}
